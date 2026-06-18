@@ -151,25 +151,34 @@ fn straight_high(ranks: &[u8]) -> u8 {
 
 fn combinations(cards: &[Card], k: usize) -> Vec<Vec<Card>> {
     let n = cards.len();
+    if k == 0 || k > n {
+        return vec![];
+    }
+
     let mut result = Vec::new();
-    let mut combo = vec![0; k];
+    let mut idx: Vec<usize> = (0..k).collect();
+
     loop {
-        result.push(combo.iter().map(|&i| cards[i]).collect());
+        result.push(idx.iter().map(|&i| cards[i]).collect());
+
         let mut i = k;
         while i > 0 {
             i -= 1;
-            combo[i] += 1;
-            if combo[i] <= n - k + i {
-                for j in i + 1..k {
-                    combo[j] = combo[j - 1] + 1;
-                }
+            if idx[i] < i + n - k {
                 break;
             }
         }
-        if i == 0 && combo[0] == n - k {
+
+        if i == 0 && idx[0] == n - k {
             break;
         }
+
+        idx[i] += 1;
+        for j in (i + 1)..k {
+            idx[j] = idx[j - 1] + 1;
+        }
     }
+
     result
 }
 
@@ -188,5 +197,109 @@ pub fn compare_hands(hole: [Card; 2], board: &[Card], opponent: [Card; 2]) -> i8
         -1
     } else {
         0
+    }
+}
+
+pub fn best_hand_from_hole(hole: [Card; 2], board: &[Card]) -> EvaluatedHand {
+    let mut cards = hole.to_vec();
+    cards.extend_from_slice(board);
+    evaluate_hand(&cards)
+}
+
+pub fn describe_hand(hand: &EvaluatedHand) -> String {
+    match hand.rank {
+        HandRank::StraightFlush => format!("Straight Flush, {} high", rank_label(hand.kickers[0])),
+        HandRank::FourOfAKind => format!("Four of a Kind, {}", rank_plural(hand.kickers[0])),
+        HandRank::FullHouse => format!(
+            "Full House, {} full of {}",
+            rank_plural(hand.kickers[0]),
+            rank_plural(hand.kickers[1])
+        ),
+        HandRank::Flush => format!("Flush, {} high", rank_label(hand.kickers[0])),
+        HandRank::Straight => format!("Straight, {} high", rank_label(hand.kickers[0])),
+        HandRank::ThreeOfAKind => format!("Three of a Kind, {}", rank_plural(hand.kickers[0])),
+        HandRank::TwoPair => format!(
+            "Two Pair, {} and {}",
+            rank_plural(hand.kickers[0]),
+            rank_plural(hand.kickers[1])
+        ),
+        HandRank::Pair => format!("Pair of {}", rank_plural(hand.kickers[0])),
+        HandRank::HighCard => format!("High Card, {}", rank_label(hand.kickers[0])),
+    }
+}
+
+fn rank_label(rank: u8) -> &'static str {
+    match rank {
+        14 => "Ace",
+        13 => "King",
+        12 => "Queen",
+        11 => "Jack",
+        10 => "Ten",
+        n => match n {
+            9 => "Nine",
+            8 => "Eight",
+            7 => "Seven",
+            6 => "Six",
+            5 => "Five",
+            4 => "Four",
+            3 => "Three",
+            2 => "Two",
+            _ => "?",
+        },
+    }
+}
+
+fn rank_plural(rank: u8) -> String {
+    match rank {
+        14 => "Aces".into(),
+        13 => "Kings".into(),
+        12 => "Queens".into(),
+        11 => "Jacks".into(),
+        10 => "Tens".into(),
+        9 => "Nines".into(),
+        8 => "Eights".into(),
+        7 => "Sevens".into(),
+        6 => "Sixes".into(),
+        5 => "Fives".into(),
+        4 => "Fours".into(),
+        3 => "Threes".into(),
+        2 => "Twos".into(),
+        _ => "?".into(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::poker::cards::{Card, Suit};
+
+    #[test]
+    fn two_pair_beats_one_pair_at_showdown() {
+        let board = [
+            Card::new(14, Suit::Hearts),
+            Card::new(9, Suit::Diamonds),
+            Card::new(4, Suit::Clubs),
+            Card::new(7, Suit::Spades),
+            Card::new(2, Suit::Hearts),
+        ];
+        let bot1 = [Card::new(8, Suit::Spades), Card::new(8, Suit::Hearts)];
+        let bot4 = [Card::new(14, Suit::Spades), Card::new(7, Suit::Hearts)];
+
+        let pair_eights = best_hand_from_hole(bot1, &board);
+        let two_pair = best_hand_from_hole(bot4, &board);
+
+        assert_eq!(
+            describe_hand(&pair_eights),
+            "Pair of Eights",
+            "unexpected bot1 hand: {:?}",
+            pair_eights
+        );
+        assert_eq!(
+            describe_hand(&two_pair),
+            "Two Pair, Aces and Sevens",
+            "unexpected bot4 hand: {:?}",
+            two_pair
+        );
+        assert!(two_pair > pair_eights);
     }
 }

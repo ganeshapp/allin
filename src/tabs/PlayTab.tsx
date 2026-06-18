@@ -108,7 +108,9 @@ export function PlayTab() {
 
           {game.hand_over && game.session_active && (
             <div className="hand-over-banner">
-              Hand complete — click New Hand to continue
+              {game.showdown && game.winning_hand
+                ? `Showdown complete — ${game.last_action ?? "Hand finished"}`
+                : "Hand complete — click New Hand to continue"}
             </div>
           )}
 

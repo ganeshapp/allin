@@ -8,6 +8,7 @@ import {
   scoreRangeGuess,
 } from "../api/tauri";
 import type { GuessResult } from "../types";
+import { CardText } from "./TableCard";
 
 interface Props {
   game: GameState;
@@ -128,7 +129,7 @@ export function BotIntelPanel({ game }: Props) {
             </button>
             {peekedCards && (
               <p className="peek-reveal">
-                {peekedCards[0]} {peekedCards[1]}
+                <CardText card={peekedCards[0]} /> <CardText card={peekedCards[1]} />
               </p>
             )}
           </div>

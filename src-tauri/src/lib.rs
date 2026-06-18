@@ -7,6 +7,7 @@ use crate::poker::cards::{Card, Suit};
 use crate::poker::deck::Deck;
 use crate::poker::equity::{analyze_action, monte_carlo_equity, EvAnalysis};
 use crate::poker::outs::{calculate_outs, combo_explanation};
+use crate::poker::hand::{best_hand_from_hole, describe_hand, EvaluatedHand};
 use crate::poker::range::RangeMatrix;
 use crate::session::{build_summary, reset_stacks_for_session, settle_hand, SessionState, SessionSummary};
 use serde::{Deserialize, Serialize};
@@ -59,6 +60,8 @@ pub struct GameState {
     pub has_acted: Vec<bool>,
     pub hand_over: bool,
     pub winner_seat: Option<usize>,
+    pub showdown: bool,
+    pub winning_hand: Option<String>,
     pub last_action: Option<String>,
     pub action_history: Vec<String>,
     pub session_active: bool,
@@ -121,6 +124,8 @@ impl GameState {
             has_acted: vec![false; table_size],
             hand_over: false,
             winner_seat: None,
+            showdown: false,
+            winning_hand: None,
             last_action: None,
             action_history: vec![],
             session_active: false,
@@ -139,6 +144,8 @@ impl GameState {
         self.last_coach_message = None;
         self.hand_over = false;
         self.winner_seat = None;
+        self.showdown = false;
+        self.winning_hand = None;
         self.last_action = None;
         self.action_history = vec!["— New hand dealt —".to_string()];
         self.has_acted = vec![false; self.table_size];
@@ -246,30 +253,78 @@ fn betting_round_complete(game: &GameState) -> bool {
         .all(|&i| game.players[i].bet >= game.current_bet - 0.001 && game.has_acted[i])
 }
 
+fn declare_winner(
+    game: &mut GameState,
+    winner: usize,
+    showdown: bool,
+    winning_hand: Option<String>,
+) {
+    game.hand_over = true;
+    game.winner_seat = Some(winner);
+    game.showdown = showdown;
+    game.winning_hand = winning_hand.clone();
+
+    let name = player_label(game, winner);
+    let msg = if showdown {
+        if let Some(hand) = winning_hand {
+            format!("Showdown — {name} wins ${:.2} with {hand}", game.pot)
+        } else {
+            format!("Showdown — {name} wins ${:.2}", game.pot)
+        }
+    } else {
+        format!("{name} wins ${:.2}", game.pot)
+    };
+    game.last_action = Some(msg.clone());
+    game.action_history.push(msg);
+}
+
+fn resolve_showdown(game: &GameState) -> Option<(usize, String)> {
+    let board: Vec<Card> = game.board.iter().filter_map(|s| parse_card(s)).collect();
+    if board.len() < 5 {
+        return None;
+    }
+
+    let mut best_seat: Option<usize> = None;
+    let mut best_eval: Option<EvaluatedHand> = None;
+
+    for &seat in game.active_seats().iter() {
+        let hole = game.players[seat].hole_cards.as_ref()?;
+        let c1 = parse_card(&hole[0])?;
+        let c2 = parse_card(&hole[1])?;
+        let eval = best_hand_from_hole([c1, c2], &board);
+
+        match &best_eval {
+            None => {
+                best_seat = Some(seat);
+                best_eval = Some(eval);
+            }
+            Some(current) if eval > *current => {
+                best_seat = Some(seat);
+                best_eval = Some(eval);
+            }
+            _ => {}
+        }
+    }
+
+    let seat = best_seat?;
+    let hand = describe_hand(&best_eval?);
+    Some((seat, hand))
+}
+
 fn finish_betting_round(game: &mut GameState) {
     let active = game.active_seats();
     if active.len() <= 1 {
-        game.hand_over = true;
-        game.winner_seat = active.first().copied();
-        if let Some(w) = game.winner_seat {
-            let msg = format!("{} wins ${:.2}", player_label(game, w), game.pot);
-            game.last_action = Some(msg.clone());
-            game.action_history.push(msg);
+        if let Some(w) = active.first().copied() {
+            declare_winner(game, w, false, None);
         }
         return;
     }
 
     if game.street == Street::River {
-        game.hand_over = true;
-        game.winner_seat = active.first().copied();
-        if let Some(w) = game.winner_seat {
-            let msg = format!(
-                "Showdown — {} wins ${:.2}",
-                player_label(game, w),
-                game.pot
-            );
-            game.last_action = Some(msg.clone());
-            game.action_history.push(msg);
+        if let Some((winner, hand_desc)) = resolve_showdown(game) {
+            declare_winner(game, winner, true, Some(hand_desc));
+        } else if let Some(&w) = active.first() {
+            declare_winner(game, w, true, None);
         }
         return;
     }
@@ -348,12 +403,8 @@ fn apply_action(game: &mut GameState, seat: usize, action: PlayerAction, amount:
 
     let active = game.active_seats();
     if active.len() <= 1 {
-        game.hand_over = true;
-        game.winner_seat = active.first().copied();
-        if let Some(w) = game.winner_seat {
-            let msg = format!("{} wins ${:.2}", player_label(game, w), game.pot);
-            game.last_action = Some(msg.clone());
-            game.action_history.push(msg);
+        if let Some(w) = active.first().copied() {
+            declare_winner(game, w, false, None);
         }
         return;
     }

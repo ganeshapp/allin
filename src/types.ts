@@ -64,6 +64,8 @@ export interface GameState {
   has_acted: boolean[];
   hand_over: boolean;
   winner_seat: number | null;
+  showdown: boolean;
+  winning_hand: string | null;
   last_action: string | null;
   action_history: string[];
   session_active: boolean;

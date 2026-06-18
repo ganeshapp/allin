@@ -818,6 +818,17 @@ td.negative { color: var(--danger); }
   padding: 8px 0;
 }
 
+.hero-hand-cards {
+  display: flex;
+  gap: 6px;
+}
+
+.hero-hand-card {
+  width: 36px !important;
+  height: 48px !important;
+  font-size: 13px !important;
+}
+
 .turn-badge {
   font-size: 12px;
   padding: 2px 10px;
@@ -954,6 +965,39 @@ td.negative { color: var(--danger); }
   opacity: 0.35;
 }
 
+.seat.winner .seat-avatar {
+  border-color: #ffd700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.6);
+}
+
+.winner-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #1a1a1a;
+  background: #ffd700;
+  border-radius: 999px;
+}
+
+.showdown-result {
+  margin-top: 12px;
+  padding: 10px 14px;
+  text-align: center;
+  font-size: 15px;
+  color: var(--text-primary);
+  background: rgba(255, 215, 0, 0.12);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: var(--radius);
+}
+
+.showdown-hand {
+  color: var(--accent);
+}
+
 .hole-cards {
   display: flex;
   gap: 2px;
@@ -1072,6 +1116,16 @@ td.negative { color: var(--danger); }
   font-weight: 700;
   color: #1a1a1a;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.card.red,
+.card-text.red {
+  color: #dc2626;
+}
+
+.card.black,
+.card-text.black {
+  color: #1a1a1a;
 }
 
 .card.face-down {
