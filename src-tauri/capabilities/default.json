@@ -1,0 +1,6 @@
+{
+  "identifier": "all-in-capabilities",
+  "description": "Default capabilities for All-In",
+  "windows": ["main"],
+  "permissions": ["core:default", "shell:allow-open"]
+}

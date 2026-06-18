@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>All-In — Poker Training</title>
+  <meta name="description" content="Offline Texas Hold'em training for macOS and Linux. Study, play, and learn to read opponents." />
+  <link rel="icon" type="image/png" href="logo.png" />
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #243044;
+      --text: #e8edf4;
+      --muted: #8b9cb3;
+      --accent: #22c55e;
+      --felt: #1a5c3a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a { color: var(--accent); }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand img { width: 40px; height: 40px; border-radius: 50%; }
+    .brand h1 { font-size: 22px; }
+    .brand span { font-size: 12px; color: var(--muted); }
+    .hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 64px 24px 48px;
+      text-align: center;
+    }
+    .hero img { width: 96px; height: 96px; border-radius: 50%; margin-bottom: 24px; }
+    .hero h2 { font-size: 36px; margin-bottom: 12px; letter-spacing: -0.02em; }
+    .hero p { color: var(--muted); font-size: 18px; max-width: 560px; margin: 0 auto 32px; }
+    .cta {
+      display: inline-flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 15px;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+    section h3 { font-size: 22px; margin-bottom: 16px; }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .card h4 { margin-bottom: 8px; color: var(--accent); }
+    .card p { color: var(--muted); font-size: 14px; }
+    footer {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+      margin-top: 48px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img src="logo.png" alt="All-In logo" />
+      <div>
+        <h1>All-In</h1>
+        <span>Poker Training</span>
+      </div>
+    </div>
+    <a href="https://github.com/ganeshapp/allin/releases" class="btn btn-primary">Download</a>
+  </header>
+
+  <div class="hero">
+    <img src="logo.png" alt="" />
+    <h2>Learn poker. Play offline.</h2>
+    <p>
+      A desktop training app for Texas Hold'em. Work through interactive lessons,
+      then practice reading bots across full sessions — no internet required.
+    </p>
+    <div class="cta">
+      <a href="https://github.com/ganeshapp/allin/releases" class="btn btn-primary">Get the app</a>
+      <a href="https://github.com/ganeshapp/allin" class="btn btn-secondary">View source</a>
+    </div>
+  </div>
+
+  <section>
+    <h3>What you get</h3>
+    <div class="features">
+      <div class="card">
+        <h4>Study path</h4>
+        <p>Hand rankings, position, ranges, pot odds, board textures, c-bets, combinatorics, blockers, and exploits — with quizzes you can practice endlessly.</p>
+      </div>
+      <div class="card">
+        <h4>Play sandbox</h4>
+        <p>6-max table against AI bots. Bot types stay fixed per session so you can learn their tendencies over many hands.</p>
+      </div>
+      <div class="card">
+        <h4>Read opponents</h4>
+        <p>Guess or peek player type, hole cards, and opening range on the 13×13 matrix. Score your accuracy.</p>
+      </div>
+      <div class="card">
+        <h4>Math & coaching</h4>
+        <p>Show Math for outs, equity, and pot odds anytime. EV Coach flags -EV calls with clear explanations.</p>
+      </div>
+      <div class="card">
+        <h4>Sessions</h4>
+        <p>Chips carry over between hands. End a session for stats and download hand histories in PokerStars format.</p>
+      </div>
+      <div class="card">
+        <h4>Offline first</h4>
+        <p>Runs entirely on your machine. macOS and Linux builds available.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h3>Install</h3>
+    <p style="color: var(--muted); margin-bottom: 12px;">
+      Download the latest release for your platform from GitHub:
+    </p>
+    <ul style="color: var(--muted); padding-left: 20px;">
+      <li><strong>macOS</strong> — open the <code>.dmg</code>, drag All-In to Applications</li>
+      <li><strong>Ubuntu / Debian</strong> — install the <code>.deb</code> package</li>
+      <li><strong>Linux</strong> — run the <code>.AppImage</code> (chmod +x first)</li>
+    </ul>
+    <p style="margin-top: 16px;">
+      <a href="https://github.com/ganeshapp/allin/blob/main/README.md">Build from source</a> if you prefer.
+    </p>
+  </section>
+
+  <footer>
+    <p>Built by <a href="https://www.gapp.in">gapp</a> · <a href="https://github.com/ganeshapp/allin">GitHub</a></p>
+    <p style="margin-top: 8px;">MIT License</p>
+  </footer>
+</body>
+</html>
